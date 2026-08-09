@@ -1,0 +1,35 @@
+{
+  "mode": "paper",
+  "venue": "blofin",
+  "symbol": "BTC/USDT:USDT",
+  "marketType": "swap",
+  "loopIntervalMs": 500,
+  "paper": {
+    "initialEquityUsd": 10000,
+    "feeBps": 8,
+    "slippageBps": 5,
+    "volatility": 0.012
+  },
+  "risk": {
+    "maxDailyLossUsd": 250,
+    "maxDrawdownPct": 8,
+    "maxNotionalUsd": 5000,
+    "maxPositionUsd": 2500,
+    "killSwitch": false
+  },
+  "live": {
+    "sandbox": true,
+    "confirmRequired": true
+  },
+  "strategy": {
+    "type": "day",
+    "lookback": 18,
+    "bufferPct": 0.12,
+    "riskPerTradePct": 0.4,
+    "takeProfitR": 2,
+    "stopLossR": 1,
+    "maxTradesPerDay": 6,
+    "sessionUtcStartHour": 13,
+    "sessionUtcEndHour": 21
+  }
+}
