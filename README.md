@@ -24,6 +24,24 @@
 
 ---
 
+## Performance snapshot
+
+Demo analytics from the included static dashboard (`npm run dashboard`). Banners and strategy diagrams stay above/below.
+
+<p align="center">
+  <img src="docs/dashboard.jpg" alt="BloFin Pulse — Performance dashboard" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/pnl.jpg" alt="BloFin Pulse — PnL / equity view" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/analytics.jpg" alt="BloFin Pulse — Analytics strip" width="100%" />
+</p>
+
+---
+
 ## Project workflow
 
 Clone → configure → paper → credentials → live. Risk always on.
@@ -45,6 +63,7 @@ flowchart LR
 | | |
 |--|--|
 | `npm run paper` | Paper first — no API keys |
+| `npm run dashboard` | Open local analytics dashboard (static) |
 | `npm run live` | Requires `--confirm-live` + API credentials |
 
 ---

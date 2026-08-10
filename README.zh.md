@@ -24,6 +24,24 @@
 
 ---
 
+## 表现快照
+
+内置静态仪表盘演示数据（`npm run dashboard`）。横幅与策略流程图保持不变。
+
+<p align="center">
+  <img src="docs/dashboard.jpg" alt="BloFin Pulse — 表现仪表盘" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/pnl.jpg" alt="BloFin Pulse — 盈亏 / 权益视图" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/analytics.jpg" alt="BloFin Pulse — 分析条" width="100%" />
+</p>
+
+---
+
 ## 项目工作流
 
 克隆 → 配置 → 模拟 → 凭证 → 实盘。风控始终开启。
@@ -45,6 +63,7 @@ flowchart LR
 | | |
 |--|--|
 | `npm run paper` | 先跑模拟盘 — 无需 API Key |
+| `npm run dashboard` | 打开本地分析仪表盘（静态） |
 | `npm run live` | 需要 `--confirm-live` 与 API 凭证 |
 
 ---

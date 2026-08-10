@@ -24,6 +24,24 @@
 
 ---
 
+## Instantánea de rendimiento
+
+Analítica demo del dashboard estático incluido (`npm run dashboard`). El banner y los diagramas de estrategia se mantienen.
+
+<p align="center">
+  <img src="docs/dashboard.jpg" alt="BloFin Pulse — Dashboard de rendimiento" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/pnl.jpg" alt="BloFin Pulse — Vista de PnL / equity" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/analytics.jpg" alt="BloFin Pulse — Franja de analítica" width="100%" />
+</p>
+
+---
+
 ## Flujo del proyecto
 
 Clonar → configurar → paper → credenciales → live. Riesgo siempre activo.
@@ -45,6 +63,7 @@ flowchart LR
 | | |
 |--|--|
 | `npm run paper` | Primero paper — sin API keys |
+| `npm run dashboard` | Abrir dashboard de analítica local (estático) |
 | `npm run live` | Requiere `--confirm-live` + credenciales API |
 
 ---

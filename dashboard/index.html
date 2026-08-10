@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BloFin Pulse — Intraday Session Desk</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="shell" data-layout="equityPnl" data-project="blofin-day-trading-bot">
+    
+<header class="top">
+  <div class="brand"><div class="logo">B</div><div><h1>BloFin Pulse</h1><p>BloFin</p></div></div>
+  <div class="title-block"><h2>Intraday Session Desk</h2><div class="sub">Day-trading windows · Fast risk · Session PnL</div></div>
+  <div class="badge"><span class="dot"></span>PAPER Mode · 15 Days</div>
+</header>
+<section class="kpis"><div class="kpi tone-a"><div class="lbl">Session PnL</div><div class="val">+$980</div><div class="sub">+49.0%</div></div><div class="kpi tone-b"><div class="lbl">Win Rate</div><div class="val">69.1%</div><div class="sub">188W / 84L</div></div><div class="kpi tone-c"><div class="lbl">Profit Factor</div><div class="val">2.05</div><div class="sub">Gross ratio</div></div><div class="kpi tone-a"><div class="lbl">Avg Hold</div><div class="val">42m</div><div class="sub">Median</div></div><div class="kpi tone-b"><div class="lbl">Trades</div><div class="val">272</div><div class="sub">15d</div></div><div class="kpi tone-warn"><div class="lbl">Max DD</div><div class="val">-6.2%</div><div class="sub">Session equity</div></div></section>
+<section class="grid2">
+  <article class="panel" style="--accent:var(--a)" data-shot="pnl">
+    <div class="row"><h3>Cumulative Equity</h3><span class="pill">15 Days</span></div>
+    <canvas id="eq" height="280"></canvas>
+    <div class="meta" id="eqMeta"></div>
+  </article>
+  <article class="panel" style="--accent:var(--c)">
+    <div class="row"><h3>Daily PnL (USD)</h3><span class="pill">USD</span></div>
+    <canvas id="bars" height="280"></canvas>
+    <div class="meta" id="barMeta"></div>
+  </article>
+</section>
+<footer class="foot"><span>Discipline creates edge. Data confirms it.</span><span>Built for BloFin</span></footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -24,6 +24,24 @@
 
 ---
 
+## Performance-Snapshot
+
+Demo-Analytics aus dem statischen Dashboard (`npm run dashboard`). Banner und Strategie-Diagramme bleiben erhalten.
+
+<p align="center">
+  <img src="docs/dashboard.jpg" alt="BloFin Pulse — Performance-Dashboard" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/pnl.jpg" alt="BloFin Pulse — PnL- / Equity-Ansicht" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/analytics.jpg" alt="BloFin Pulse — Analytics-Streifen" width="100%" />
+</p>
+
+---
+
 ## Projekt-Workflow
 
 Klonen → konfigurieren → Paper → Credentials → Live. Risk immer an.
@@ -45,6 +63,7 @@ flowchart LR
 | | |
 |--|--|
 | `npm run paper` | Zuerst Paper — keine API-Keys |
+| `npm run dashboard` | Lokales Analytics-Dashboard öffnen (statisch) |
 | `npm run live` | Benötigt `--confirm-live` + API-Credentials |
 
 ---
