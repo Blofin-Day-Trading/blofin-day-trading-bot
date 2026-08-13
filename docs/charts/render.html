@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    html,body{margin:0;padding:0;background:#0b0e11;overflow:hidden}
+    canvas{display:block}
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const chart = new URLSearchParams(location.search).get("chart") || "winloss";
+const W = 1720;
+const H = (chart === "winloss" || chart === "drawdown") ? 680 : 760;
+const c = document.getElementById("c");
+c.width = W; c.height = H;
+const ctx = c.getContext("2d");
+
+const G = "#4ade80", G2 = "#16a34a", G3 = "#14532d";
+const R = "#f87171", R2 = "#dc2626", R3 = "#7f1d1d";
+const INK = "#f8fafc", MUTED = "#94a3b8", GRID = "rgba(148,163,184,0.14)";
+
+function bg() {
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, "#12161c");
+  g.addColorStop(1, "#0b0e11");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function title(main, sub) {
+  ctx.fillStyle = INK;
+  ctx.font = "700 42px ui-sans-serif, system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(main, W / 2, 62);
+  ctx.fillStyle = MUTED;
+  ctx.font = "400 22px ui-sans-serif, system-ui, sans-serif";
+  ctx.fillText(sub, W / 2, 98);
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function shadeBar(x, y, w, h, top, side, front) {
+  const d = Math.min(18, h * 0.18 + 8);
+  ctx.fillStyle = top;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w + d, y - d * 0.55);
+  ctx.lineTo(x + d, y - d * 0.55);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = side;
+  ctx.beginPath();
+  ctx.moveTo(x + w, y);
+  ctx.lineTo(x + w + d, y - d * 0.55);
+  ctx.lineTo(x + w + d, y + h - d * 0.55);
+  ctx.lineTo(x + w, y + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = front;
+  roundRect(x, y, w, h, 6);
+  ctx.fill();
+}
+
+function donut3d(cx, cy, R0, r, winPct, label, winTxt, lossTxt) {
+  const depth = 28;
+  const start = -Math.PI / 2;
+  const winA = winPct * Math.PI * 2;
+  for (let i = depth; i >= 0; i--) {
+    const yy = cy + i * 0.85;
+    const t = i / depth;
+    ctx.beginPath();
+    ctx.ellipse(cx, yy, R0, R0 * 0.42, 0, start, start + winA);
+    ctx.strokeStyle = i === 0 ? G : `rgba(22,163,74,${0.18 + (1 - t) * 0.55})`;
+    ctx.lineWidth = r;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cx, yy, R0, R0 * 0.42, 0, start + winA, start + Math.PI * 2);
+    ctx.strokeStyle = i === 0 ? R : `rgba(220,38,38,${0.18 + (1 - t) * 0.55})`;
+    ctx.lineWidth = r;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, R0, R0 * 0.42, 0, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = INK;
+  ctx.font = "700 26px ui-sans-serif, system-ui";
+  ctx.textAlign = "center";
+  ctx.fillText(label, cx, cy + R0 * 0.42 + 48);
+  ctx.font = "600 22px ui-sans-serif, system-ui";
+  ctx.fillStyle = G;
+  ctx.fillText(winTxt, cx, cy + R0 * 0.42 + 82);
+  ctx.fillStyle = R;
+  ctx.fillText(lossTxt, cx, cy + R0 * 0.42 + 112);
+}
+
+function winloss() {
+  bg();
+  title("Win / loss mix", "Green = wins  ·  Red = losses  ·  illustrative scenario");
+  donut3d(430, 310, 210, 58, 0.55, "Tuned scenario", "Wins 55.0%", "Losses 45.0%");
+  donut3d(1290, 310, 210, 58, 0.49, "Default-like", "Wins 49.0%", "Losses 51.0%");
+}
+
+function expectancy() {
+  bg();
+  title("Expectancy vs breakout buffer", "Green = positive EV  ·  Red = fakeout churn  ·  peak at 0.16");
+  const vals = [
+    { x: "0.08", ev: -1.2, red: true },
+    { x: "0.12", ev: 3.1, red: false },
+    { x: "0.16", ev: 8.4, red: false, peak: true },
+    { x: "0.20", ev: 7.2, red: false },
+    { x: "0.24", ev: 2.8, red: false },
+  ];
+  const left = 160, right = W - 80, top = 160, bottom = H - 120;
+  const maxEv = 12, minEv = -3;
+  const span = maxEv - minEv;
+  ctx.strokeStyle = GRID;
+  ctx.lineWidth = 1;
+  [0, 4, 8].forEach((v) => {
+    const y = bottom - ((v - minEv) / span) * (bottom - top);
+    ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
+    ctx.fillStyle = MUTED;
+    ctx.font = "400 18px ui-sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(String(v), left - 16, y + 6);
+  });
+  const zeroY = bottom - ((0 - minEv) / span) * (bottom - top);
+  ctx.strokeStyle = "rgba(148,163,184,0.35)";
+  ctx.beginPath(); ctx.moveTo(left, zeroY); ctx.lineTo(right, zeroY); ctx.stroke();
+  ctx.fillStyle = MUTED;
+  ctx.font = "500 18px ui-sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("EV / trade (USD)", 86, (top + bottom) / 2);
+  const slot = (right - left) / vals.length;
+  vals.forEach((d, i) => {
+    const bw = 92;
+    const x = left + slot * i + slot / 2 - bw / 2;
+    if (d.ev >= 0) {
+      const h = (d.ev / span) * (bottom - top);
+      const y = zeroY - h;
+      shadeBar(x, y, bw, h, d.peak ? "#86efac" : G, G3, d.peak ? G2 : "#15803d");
+      ctx.fillStyle = d.peak ? G : G;
+      ctx.font = d.peak ? "700 22px ui-sans-serif" : "600 20px ui-sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("$" + d.ev.toFixed(1), x + bw / 2, y - 22);
+    } else {
+      const h = (Math.abs(d.ev) / span) * (bottom - top);
+      shadeBar(x, zeroY, bw, h, "#fca5a5", R3, R2);
+      ctx.fillStyle = R;
+      ctx.font = "700 22px ui-sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("-$" + Math.abs(d.ev).toFixed(1), x + bw / 2, zeroY + h + 28);
+    }
+    ctx.fillStyle = d.red ? R : (d.peak ? G : INK);
+    ctx.font = d.peak ? "700 20px ui-sans-serif" : "500 18px ui-sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(d.x, x + bw / 2, bottom + 36);
+  });
+  ctx.fillStyle = MUTED;
+  ctx.font = "400 18px ui-sans-serif";
+  ctx.fillText("bufferPct", (left + right) / 2, H - 36);
+}
+
+function equity() {
+  bg();
+  title("Equity path — $10k start", "Green = tuned profit  ·  Red = default-like / weaker book");
+  const left = 140, right = W - 70, top = 150, bottom = H - 110;
+  const n = 80;
+  const tuned = [], def = [];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n;
+    const chopT = (u > 0.30 && u < 0.42) ? -90 : 0;
+    const chopD = (u > 0.22 && u < 0.62) ? -55 : 0;
+    tuned.push(10000 + 1008 * u + Math.sin(i * 0.48) * 38 + chopT);
+    def.push(10000 + 42 * u + Math.sin(i * 0.72) * 28 + chopD);
+  }
+  tuned[n] = 11008;
+  def[n] = 10042;
+  const minY = 9400, maxY = 11400;
+  const xAt = (i) => left + (i / n) * (right - left);
+  const yAt = (v) => bottom - ((v - minY) / (maxY - minY)) * (bottom - top);
+  ctx.strokeStyle = GRID;
+  [9400, 10400, 11400].forEach((v) => {
+    const y = yAt(v);
+    ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
+    ctx.fillStyle = MUTED;
+    ctx.font = "400 18px ui-sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText((v / 1000).toFixed(1) + "k", left - 14, y + 6);
+  });
+  function series(arr, stroke, fillA) {
+    ctx.beginPath();
+    arr.forEach((v, i) => i ? ctx.lineTo(xAt(i), yAt(v)) : ctx.moveTo(xAt(i), yAt(v)));
+    ctx.lineTo(xAt(n), bottom);
+    ctx.lineTo(xAt(0), bottom);
+    ctx.closePath();
+    ctx.fillStyle = fillA;
+    ctx.fill();
+    ctx.beginPath();
+    arr.forEach((v, i) => i ? ctx.lineTo(xAt(i), yAt(v)) : ctx.moveTo(xAt(i), yAt(v)));
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 3.4;
+    ctx.stroke();
+  }
+  series(def, R, "rgba(239,68,68,0.16)");
+  series(tuned, G, "rgba(74,222,128,0.16)");
+  ctx.fillStyle = MUTED;
+  ctx.font = "400 18px ui-sans-serif";
+  ctx.textAlign = "center";
+  [0, 20, 40, 60, 80].forEach((i) => ctx.fillText(String(i), xAt(i), bottom + 36));
+  ctx.fillText("fills in sample", (left + right) / 2, H - 32);
+  ctx.font = "600 20px ui-sans-serif";
+  ctx.fillStyle = G;
+  ctx.textAlign = "left";
+  ctx.fillText("Tuned  +10.1%", right - 280, 150);
+  ctx.fillStyle = R;
+  ctx.fillText("Default-like  +0.4%", right - 280, 180);
+}
+
+function drawdown() {
+  bg();
+  title("Drawdown from peak", "Red = underwater path  ·  Dashed green = 8% guardian floor");
+  const left = 150, right = W - 80, top = 150, bottom = H - 120;
+  const labels = ["open", "chop hour", "clean break", "late session", "end"];
+  const dd = [0, -2.1, -4.9, -1.8, -0.6];
+  const minY = -8.5, maxY = 0.4;
+  const xAt = (i) => left + (i / (dd.length - 1)) * (right - left);
+  const yAt = (v) => top + ((maxY - v) / (maxY - minY)) * (bottom - top);
+  ctx.strokeStyle = GRID;
+  [0, -4, -8].forEach((v) => {
+    const y = yAt(v);
+    ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
+    ctx.fillStyle = MUTED;
+    ctx.font = "400 18px ui-sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(v + "%", left - 14, y + 6);
+  });
+  ctx.setLineDash([10, 8]);
+  ctx.strokeStyle = G;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(left, yAt(-8));
+  ctx.lineTo(right, yAt(-8));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = G;
+  ctx.font = "600 18px ui-sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("guardian 8%", right - 170, yAt(-8) - 12);
+
+  ctx.beginPath();
+  dd.forEach((v, i) => i ? ctx.lineTo(xAt(i), yAt(v)) : ctx.moveTo(xAt(i), yAt(v)));
+  ctx.lineTo(xAt(dd.length - 1), yAt(0));
+  ctx.lineTo(xAt(0), yAt(0));
+  ctx.closePath();
+  const fill = ctx.createLinearGradient(0, yAt(0), 0, yAt(-8));
+  fill.addColorStop(0, "rgba(239,68,68,0.05)");
+  fill.addColorStop(1, "rgba(239,68,68,0.38)");
+  ctx.fillStyle = fill;
+  ctx.fill();
+
+  ctx.beginPath();
+  dd.forEach((v, i) => i ? ctx.lineTo(xAt(i), yAt(v)) : ctx.moveTo(xAt(i), yAt(v)));
+  ctx.strokeStyle = R;
+  ctx.lineWidth = 3.4;
+  ctx.stroke();
+
+  const mx = 2;
+  ctx.fillStyle = R2;
+  ctx.beginPath();
+  ctx.arc(xAt(mx), yAt(dd[mx]), 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = R;
+  ctx.font = "700 20px ui-sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("max DD -4.9%", xAt(mx) + 16, yAt(dd[mx]) + 6);
+
+  ctx.fillStyle = MUTED;
+  ctx.font = "400 18px ui-sans-serif";
+  ctx.textAlign = "center";
+  labels.forEach((lab, i) => ctx.fillText(lab, xAt(i), bottom + 40));
+}
+
+const run = { winloss, expectancy, equity, drawdown };
+run[chart]();
+</script>
+</body>
+</html>
